@@ -22,7 +22,6 @@ export function sortStrings(arr, param = 'asc') {
 function sensitiveSorter(a, b) {
 
     if (a.toLowerCase() == b.toLowerCase()) {
-        console.log(a);
         return a.charAt(0).toUpperCase() == a.charAt(0) ? -1 : 1;
     }
 
