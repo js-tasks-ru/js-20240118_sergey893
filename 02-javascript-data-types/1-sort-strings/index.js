@@ -25,5 +25,5 @@ function sensitiveSorter(a, b) {
         return a.charAt(0).toUpperCase() == a.charAt(0) ? -1 : 1;
     }
 
-    return a.localeCompare(b);
+    return a.localeCompare(b, 'ru', { sensitivity: 'case' });
 }
