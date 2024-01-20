@@ -13,7 +13,6 @@ export function createGetter(path) {
     }
 
     let key = props.shift();
-    console.log("Ключ %s, значение ключа %s, список для следующей итерации %s", key, obj[key], props);
     if (props.length === 0) {
       return obj[key];
     }
