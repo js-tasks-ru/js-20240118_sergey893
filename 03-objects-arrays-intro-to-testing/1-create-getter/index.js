@@ -5,4 +5,20 @@
  */
 export function createGetter(path) {
 
+  let props = path.split('.');
+
+  function getter(obj) {
+    if (obj === undefined) {
+      return undefined;
+    }
+
+    let key = props.shift();
+    console.log("Ключ %s, значение ключа %s, список для следующей итерации %s", key, obj[key], props);
+    if (props.length === 0) {
+      return obj[key];
+    }
+    return getter(obj[key]);
+  }
+
+  return getter;
 }
