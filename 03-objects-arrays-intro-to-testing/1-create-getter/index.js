@@ -5,19 +5,17 @@
  */
 export function createGetter(path) {
 
-  let props = path.split('.');
+  const props = path.split('.');
 
   function getter(obj) {
-    if (obj === undefined) {
-      return undefined;
+    if (Object.entries(obj).length === 0) {
+      return;
     }
 
-    let key = props.shift();
-    if (props.length === 0) {
-      return obj[key];
+    for (const key of props) {
+      obj = obj[key];
     }
-    return getter(obj[key]);
+    return obj;
   }
-
   return getter;
-}
+} 

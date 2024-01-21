@@ -5,7 +5,7 @@
  */
 export function invertObj(obj) {
   if (obj === undefined) {
-    return undefined;
+    return;
   }
 
   const swapped = Object.entries(obj).map(
