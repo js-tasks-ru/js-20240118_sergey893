@@ -5,12 +5,7 @@
  * @returns {string[]}
  */
 export function sortStrings(arr, param = 'asc') {
-  if (param == 'asc') {
-    return arr.slice().sort(sensitiveSorter);
-  }
-  else {
-    return arr.slice().sort(sensitiveReverseSorter);
-  }
+  return arr.slice().sort(param == 'asc' ? sensitiveSorter : (a, b) => -1 * sensitiveSorter(a, b));
 }
 
 function sensitiveSorter(a, b) {
@@ -20,8 +15,4 @@ function sensitiveSorter(a, b) {
   }
 
   return a.localeCompare(b, 'ru', { sensitivity: 'case' });
-}
-
-function sensitiveReverseSorter(a, b) {
-  return -1 * sensitiveSorter(a, b);
 }
