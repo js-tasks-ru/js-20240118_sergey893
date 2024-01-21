@@ -5,7 +5,7 @@
  * @returns {string[]}
  */
 export function sortStrings(arr, param = 'asc') {
-  return arr.slice().sort(param == 'asc' ? sensitiveSorter : (a, b) => -1 * sensitiveSorter(a, b));
+  return arr.slice().sort(param == 'asc' ? sensitiveSorter : (a, b) => sensitiveSorter(b, a));
 }
 
 function sensitiveSorter(a, b) {
