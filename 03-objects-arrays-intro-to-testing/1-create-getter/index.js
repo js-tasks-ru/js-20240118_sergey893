@@ -13,6 +13,9 @@ export function createGetter(path) {
     }
 
     for (const key of props) {
+      if (typeof obj === 'undefined' || obj.length == 0) {
+        break;
+      }
       obj = obj[key];
     }
     return obj;
