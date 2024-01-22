@@ -5,4 +5,17 @@
  */
 export function createGetter(path) {
 
-}
+  const props = path.split('.');
+
+  function getter(obj) {
+    if (Object.entries(obj).length === 0) {
+      return;
+    }
+
+    for (const key of props) {
+      obj = obj[key];
+    }
+    return obj;
+  }
+  return getter;
+} 
