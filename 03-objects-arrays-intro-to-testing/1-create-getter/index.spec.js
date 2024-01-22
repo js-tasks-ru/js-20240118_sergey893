@@ -56,4 +56,18 @@ describe('objects-arrays-intro-to-testing/create-getter', () => {
 
     expect(getter({more: {nested: {property: 1}}})).toEqual(1);
   });
+
+  it('gets twice more.nested.property', () => {
+    const getter = createGetter('more.nested.property');
+
+    for (let i = 0; i < 2; i++) {
+      expect(getter({more: {nested: {property: 1}}})).toEqual(1);
+    }
+  });
+
+  it('the path may be deeper than the nesting of the object', () => {
+    const getter = createGetter('a.b.c');
+
+    expect(getter({a: 1})).toBeUndefined();
+  });
 });
