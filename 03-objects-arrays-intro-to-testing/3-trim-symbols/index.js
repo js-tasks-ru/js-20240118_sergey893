@@ -20,8 +20,7 @@ export function trimSymbols(string, size) {
 
   for (let i = 1; i < string.length; i++) {
     if (prevChar == string.charAt(i)) {      
-      matches++;
-      if (matches <= size) {
+      if (++matches <= size) {
         result += string.charAt(i);
       }
     } else {
@@ -30,6 +29,6 @@ export function trimSymbols(string, size) {
     }
     prevChar = string.charAt(i);
   }
-  
+
   return result;
 }
