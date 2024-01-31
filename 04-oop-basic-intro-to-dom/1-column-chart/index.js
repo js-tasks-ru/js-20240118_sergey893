@@ -50,6 +50,11 @@ export default class ColumnChart {
     return this.data.length ? 'column-chart' : 'column-chart column-chart_loading';
   }
 
+  update(newData) {
+    this.data = newData;
+    this.element.querySelector('[data-element="body"]').innerHTML = this.createChartBodytemplate();
+  }
+
   createTemplate() {
     return (`
     <div class="${this.createChartClasses()}" style="--chart-height: 50">
