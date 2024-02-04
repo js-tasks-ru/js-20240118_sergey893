@@ -1,13 +1,13 @@
 export default class NotificationMessage {
-  // подсказка 1  - см. видео 41:40 про требование "без DOM"
   static lastInstance;
   element;
 
-  constructor(greeteing, { duration = 0, type_ = 'success' }) {
+  constructor(greeteing, { duration, type } = {}) {
     this.greeteing = greeteing;
-    this.duration = duration + "ms";
-    this.type_ = type_;
-    this.notificationClass = type_ == 'success' ? 'notification success' : 'notification error';
+    this.duration = duration || 1000;
+    this.type = type || 'error';
+
+    this.element = this.createElement(this.createTemplate());
   }
 
   createElement(template) {
@@ -16,24 +16,28 @@ export default class NotificationMessage {
     return element.firstElementChild;
   }
 
-  show() {
+  show(container = document.body) {
     if (NotificationMessage.lastInstance) {
-      NotificationMessage.lastInstance.remove();
+      NotificationMessage.lastInstance.destroy();
     }
 
     this.element = this.createElement(this.createTemplate());
 
-    // add to DOM
     NotificationMessage.lastInstance = this;
-    console.log('lastInstance', NotificationMessage.lastInstance);
+
+    container.appendChild(this.element);
+
+    this.timeoutId = setTimeout(() => {
+      this.remove();
+    }, this.duration);
   }
 
   createTemplate() {
     return (`
-    <div class="${this.notificationClass}" style="--value:${this.duration}">
+    <div class="notification ${this.type}" style="--value:20s">
       <div class="timer"></div>
       <div class="inner-wrapper">
-        <div class="notification-header">${this.type_}</div>
+        <div class="notification-header">${this.type}</div>
         <div class="notification-body">
           ${this.greeteing}
         </div>
@@ -43,11 +47,14 @@ export default class NotificationMessage {
   }
 
   remove() {
-    this.lastInstance = undefined;
+    this.element.remove();
   }
 
   destroy() {
     this.remove();
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+    }
   }
 
 }
