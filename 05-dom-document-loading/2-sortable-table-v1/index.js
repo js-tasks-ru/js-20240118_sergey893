@@ -4,8 +4,8 @@ export default class SortableTable {
     
     // Создаем список объектов данных, которые содержат только указанные в заголовке ключи.
     this.fields = this.headers.map(column => column.id);
-    this.data = data; // Array.from(data, (row) => pick(row, ...fields));
-  
+    this.data = data;
+
     this.element = this.createElement(this.createTemplate());
   }
 
