@@ -15,7 +15,7 @@ export default class SortableTable {
     return element.firstElementChild;
   }
 
-  sort (fieldValue, orderValue) {
+  sort (fieldValue, orderValue, container = document.body) {
     const sortType = this.headers.findIndex(x => x.id === fieldValue)?.sortType;
 
     if (sortType == 'string') {
@@ -25,7 +25,10 @@ export default class SortableTable {
     }
 
     this.data = sortStrings(this.data, fieldValue, orderValue);
+    
+    this.element.remove();
     this.element = this.createElement(this.createTemplate());
+    container.appendChild(this.element);
   }
 
   createTemplate() {
@@ -97,7 +100,6 @@ export default class SortableTable {
       </div>
     `;
   }
-
 
   remove() {
     this.element.remove();
