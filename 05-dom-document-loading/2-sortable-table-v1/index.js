@@ -1,126 +1,137 @@
 export default class SortableTable {
+  element;
+  subElements = {};
+
   constructor(headerConfig = [], data = []) {
-    this.headers = headerConfig;
-    
-    // Создаем список объектов данных, которые содержат только указанные в заголовке ключи.
-    this.fields = this.headers.map(column => column.id);
+    this.headerConfig = headerConfig;
     this.data = data;
 
-    this.element = this.createElement(this.createTemplate());
+    this.render();
   }
 
-  createElement(template) {
-    const element = document.createElement('div');
-    element.innerHTML = template;
-    return element.firstElementChild;
+  createTableHeader() {
+    return `<div data-element="header" class="sortable-table__header sortable-table__row">
+      ${this.headerConfig.map(item => this.createHeaderRow(item)).join('')}
+    </div>`;
   }
 
-  sort (fieldValue, orderValue, container = document.body) {
-    const sortType = this.headers.findIndex(x => x.id === fieldValue)?.sortType;
-
-    if (sortType == 'string') {
-      this.data = sortStrings(this.data, fieldValue, orderValue);  
-    } else {
-      this.data = sortNumbers(this.data, fieldValue, orderValue);
-    }
-
-    this.data = sortStrings(this.data, fieldValue, orderValue);
-    
-    this.element.remove();
-    this.element = this.createElement(this.createTemplate());
-    container.appendChild(this.element);
-  }
-
-  createTemplate() {
+  createHeaderRow({id, title, sortable}) {
     return `
-      <div data-element="productsContainer" class="products-list__container">
-        <div class="sortable-table">
-          ${this.createHeader()}      
-
-          ${this.createBody()}      
-
-          <div data-element="loading" class="loading-line sortable-table__loading-line"></div>
-
-          <div data-element="emptyPlaceholder" class="sortable-table__empty-placeholder">
-            <div>
-              <p>No products satisfies your filter criteria</p>
-              <button type="button" class="button-primary-outline">Reset all filters</button>
-            </div>
-          </div>
-      
-        </div>
+      <div class="sortable-table__cell" data-id="${id}" data-sortable="${sortable}">
+        <span>${title}</span>
+        <span data-element="arrow" class="sortable-table__sort-arrow">
+          <span class="sort-arrow"></span>
+        </span>
       </div>
     `;
   }
 
-  createHeader() {
-    return `
-      <div data-element="header" class="sortable-table__header sortable-table__row">
-      ${Array.from(this.headers, (column) => this.createHeaderColumn(column)).join('')}
-      </div>
-    `;
-  }
-
-  createHeaderColumn(columnData) {
-    const sortSpan = `
-      <span data-element="arrow" class="sortable-table__sort-arrow">
-        <span class="sort-arrow">
-      </span></span>
-    `;
-
-    return `
-      <div class="sortable-table__cell" data-id="${columnData.id}" data-sortable="${columnData.sortable ? 'true' : 'false'}" data-order="asc">
-        <span>${columnData.title}</span>
-        ${columnData.sortable ? sortSpan : ''}
-      </div>
-    `;
-  }
-
-  createBody() {
+  createTableBody() {
     return `
       <div data-element="body" class="sortable-table__body">
-      ${Array.from(this.data, (row) => this.createRow(row)).join('')}
-      </div>
-    `;
+        ${this.createTableRows(this.data)}
+      </div>`;
   }
 
-  createRow(row) {
+  createTableRows(data = []) {
+    return data.map(item => {
+      return `
+        <a href="/products/${item.id}" class="sortable-table__row">
+          ${this.createTableRow(item)}
+        </a>`;
+    }).join('');
+  }
 
-    function showFields(row, fields) {
-      let htmlFields = '';
-      fields.forEach(function(field) {
-        htmlFields += `<div class="sortable-table__cell">${row[field]}</div>`;
-      });
-      return htmlFields;
+  createTableRow(item) {
+    const cells = this.headerConfig.map(({id, template}) => {
+      return {
+        id,
+        template
+      };
+    });
+
+    return cells.map(({id, template}) => {
+      return template
+        ? template(item[id])
+        : `<div class="sortable-table__cell">${item[id]}</div>`;
+    }).join('');
+  }
+
+  createTable() {
+    return `
+      <div class="sortable-table">
+        ${this.createTableHeader()}
+        ${this.createTableBody()}
+      </div>`;
+  }
+
+  render() {
+    const wrapper = document.createElement('div');
+
+    wrapper.innerHTML = this.createTable();
+
+    const element = wrapper.firstElementChild;
+
+    this.element = element;
+    this.subElements = this.createSubElements(element);
+  }
+
+  sort(field, order) {
+    const sortedData = this.sortData(field, order);
+    const allColumns = this.element.querySelectorAll('.sortable-table__cell[data-id]');
+    const currentColumn = this.element.querySelector(`.sortable-table__cell[data-id="${field}"]`);
+
+    // NOTE: Remove sorting arrow from other columns
+    allColumns.forEach(column => {
+      column.dataset.order = '';
+    });
+
+    currentColumn.dataset.order = order;
+
+    this.subElements.body.innerHTML = this.createTableRows(sortedData);
+  }
+
+  sortData(field, order) {
+    const arr = [...this.data];
+    const column = this.headerConfig.find(item => item.id === field);
+    const { sortType } = column;
+    const directions = {
+      asc: 1,
+      desc: -1
+    };
+    const direction = directions[order];
+
+    return arr.sort((a, b) => {
+      switch (sortType) {
+      case 'number':
+        return direction * (a[field] - b[field]);
+      case 'string':
+        return direction * a[field].localeCompare(b[field], ['ru', 'en']);
+      default:
+        throw new Error(`Unknown type ${sortType}`);
+      }
+    });
+  }
+
+  createSubElements(element) {
+    const result = {};
+    const elements = element.querySelectorAll('[data-element]');
+
+    for (const subElement of elements) {
+      const name = subElement.dataset.element;
+
+      result[name] = subElement;
     }
 
-    return `
-      <div class="sortable-table__row">
-      ${showFields(row, this.fields)}
-      </div>
-    `;
+    return result;
   }
 
-  remove() {
-    this.element.remove();
+  remove () {
+    // eslint-disable-next-line no-unused-expressions
+    this.element?.remove();
   }
 
   destroy() {
     this.remove();
   }
-}
-
-
-function sortStrings(arr, field, param = 'asc') {
-  let collator = new Intl.Collator('ru', { caseFirst: 'upper' });
-  return arr.slice().sort(
-    (a, b) => param == 'asc' ? collator.compare(a[field], b[field]) : collator.compare(b[field], a[field]),
-  );
-}
-
-
-function sortNumbers(arr, field, param = 'asc') {
-  return arr.slice().sort(
-    (a, b) => param == 'asc' ? a[field] - b[field] : b[field] - a[field],
-  );
 }
