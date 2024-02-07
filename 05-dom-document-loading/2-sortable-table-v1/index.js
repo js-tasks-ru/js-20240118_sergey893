@@ -73,7 +73,7 @@ export default class SortableTable {
     const element = wrapper.firstElementChild;
 
     this.element = element;
-    this.subElements = this.createSubElements(element);
+    this.subElements = this.getSubElements(element);
   }
 
   sort(field, order) {
@@ -113,7 +113,7 @@ export default class SortableTable {
     });
   }
 
-  createSubElements(element) {
+  getSubElements(element) {
     const result = {};
     const elements = element.querySelectorAll('[data-element]');
 
