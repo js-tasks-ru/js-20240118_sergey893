@@ -69,25 +69,12 @@ export default class SortableTable {
     const wrapper = document.createElement('div');
 
     wrapper.innerHTML = this.createTable();
-
-    const element = wrapper.firstElementChild;
-
-    this.element = element;
-    this.subElements = this.getSubElements(element);
+    this.element = wrapper.firstElementChild;
+    this.subElements = this.getSubElements(this.element);
   }
 
   sort(field, order) {
     const sortedData = this.sortData(field, order);
-    const allColumns = this.element.querySelectorAll('.sortable-table__cell[data-id]');
-    const currentColumn = this.element.querySelector(`.sortable-table__cell[data-id="${field}"]`);
-
-    // NOTE: Remove sorting arrow from other columns
-    allColumns.forEach(column => {
-      column.dataset.order = '';
-    });
-
-    currentColumn.dataset.order = order;
-
     this.subElements.body.innerHTML = this.createTableRows(sortedData);
   }
 
