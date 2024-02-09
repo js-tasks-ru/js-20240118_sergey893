@@ -39,14 +39,10 @@ export default class SortableTable extends SortableTableV1 {
   }
 
   createHeaderRow({id, title, sortable}) {
-    return `
-      <div class="sortable-table__cell" data-id="${id}" data-sortable="${sortable}" data-order="asc">  // метод переопределен из-за аттрибута data-order="asc"
-        <span>${title}</span>
-        <span data-element="arrow" class="sortable-table__sort-arrow">
-          <span class="sort-arrow"></span>
-        </span>
-      </div>
-    `;
+    const htmlString = super.createHeaderRow({id, title, sortable});
+    const doc = new DOMParser().parseFromString(htmlString, 'text/html');   
+    doc.body.firstElementChild.setAttribute('data-order', 'asc');
+    return doc.body.innerHTML;
   }
 
   createSortArrow() {
